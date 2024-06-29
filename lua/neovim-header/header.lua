@@ -39,9 +39,6 @@ function M.add(buf, config)
 	local text = template.replace_vars(license.template, license.vars)
 
 	local count = #{ text:gmatch("\n") }
-	--- TODO: check already added license
-	---
-	---
 	local current_header = vim.api.nvim_buf_get_lines(buf, 0, count, false)
 
 	assert(is_already_added(current_header, text, license), "header is already added")
@@ -50,3 +47,5 @@ function M.add(buf, config)
 end
 
 function M.update(buf, config) end
+
+return M

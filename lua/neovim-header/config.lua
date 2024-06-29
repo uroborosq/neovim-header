@@ -36,3 +36,5 @@ end
 function M.get()
 	return vim.deepcopy(M.config, true)
 end
+
+return M

@@ -5,3 +5,5 @@ function M.replace_vars(str, vars)
 		return vars[i] or whole
 	end))
 end
+
+return M

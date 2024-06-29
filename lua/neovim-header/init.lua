@@ -3,22 +3,26 @@ local config = require("neovim-header.config")
 
 local M = {}
 
----@param opts?
+---@param opts neovim-header.Config?
 function M.setup(opts)
-	config.setup(opts)
+	if not opts == nil then
+		config.setup(opts)
+	end
 
-	vim.api.nvim_create_user_command("UQAddHeader", function(opts)
+	vim.api.nvim_create_user_command("UQAddHeader", function()
 		local buf = vim.api.nvim_get_current_buf()
 
 		M.add(buf, config.get())
-	end)
-	vim.api.nvim_create_user_command("UQUpdateHeader", function(opts)
+	end, {})
+	vim.api.nvim_create_user_command("UQUpdateHeader", function()
 		local buf = vim.api.nvim_get_current_buf()
 		M.add(buf, config.get())
-	end)
+	end, {})
+
+	vim.notify("KOK")
 end
 
---- Add copyright header to file
+--- Add copyright header to file. Do not replace existed one.
 function M.add(buf, opts)
 	plugin.add(buf, opts)
 end
@@ -27,3 +31,5 @@ end
 function M.update(buf, opts)
 	plugin.update(buf, opts)
 end
+
+return M
