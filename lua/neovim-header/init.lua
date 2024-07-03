@@ -18,8 +18,6 @@ function M.setup(opts)
 		local buf = vim.api.nvim_get_current_buf()
 		M.add(buf, config.get())
 	end, {})
-
-	vim.notify("KOK")
 end
 
 --- Add copyright header to file. Do not replace existed one.
