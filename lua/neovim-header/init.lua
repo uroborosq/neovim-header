@@ -5,7 +5,7 @@ local M = {}
 
 ---@param opts neovim-header.Config?
 function M.setup(opts)
-	if not opts == nil then
+	if not (opts == nil) then
 		config.setup(opts)
 	end
 
@@ -18,6 +18,15 @@ function M.setup(opts)
 		local buf = vim.api.nvim_get_current_buf()
 		M.add(buf, config.get())
 	end, {})
+
+	if config.get().auto_insert then
+		vim.api.nvim_create_autocmd("BufEnter", {
+			callback = function()
+				local buf = vim.api.nvim_get_current_buf()
+				M.add(buf, config.get())
+			end,
+		})
+	end
 end
 
 --- Add copyright header to file. Do not replace existed one.
