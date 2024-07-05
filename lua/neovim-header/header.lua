@@ -1,6 +1,32 @@
 local template = require("neovim-header.template")
 
 local M = {}
+local function trim(s)
+	if s == nil then
+		return ""
+	end
+	return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+local function escape_pattern(text)
+	local matches = {
+		["%"] = "%%",
+		["."] = "%.",
+		["+"] = "%+",
+		["-"] = "%-",
+		["*"] = "%*",
+		["?"] = "%?",
+		["^"] = "%^",
+		["$"] = "%$",
+		["["] = "%[",
+		["]"] = "%]",
+		["("] = "%(",
+		[")"] = "%)",
+		-- ["{"] = "%{",
+		-- ["}"] = "%}",
+	}
+	return (text:gsub(".", matches))
+end
 
 ---@param current_text string
 ---@param header string
@@ -11,12 +37,15 @@ local function is_added(current_text, header, license)
 
 	if license.check_exist == nil then
 		check_exist = function(license_header)
+			local safe_template = escape_pattern(license.template)
 			local empty_vars = {}
 			for k, v in pairs(license.vars) do
 				empty_vars[k] = ".*"
 			end
-			local any_vars_template = template.replace_vars(license.template, empty_vars)
-			return current_text:match(any_vars_template) == current_text
+			local any_vars_template = template.replace_vars(safe_template, empty_vars)
+			any_vars_template = any_vars_template:gsub("\n", "")
+			local onelinetext = current_text:gsub("\n", "")
+			return trim(trim(onelinetext):match(trim(any_vars_template))) == trim(onelinetext)
 		end
 	elseif type(license.check_exist) == "string" then
 		check_exist = function(license_header)
