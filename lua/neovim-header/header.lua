@@ -122,6 +122,7 @@ function M.add(buf, config)
 	table.insert(copyright_lines, "")
 	table.insert(copyright_lines, "")
 	vim.api.nvim_buf_set_text(buf, 0, 0, 0, 0, copyright_lines)
+	vim.lsp.codelens.refresh()
 end
 
 function M.update(buf, config) end
