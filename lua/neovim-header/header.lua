@@ -8,6 +8,19 @@ local function trim(s)
 	return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
 
+local function split(s, delimiter)
+	local result = {}
+	local from = 1
+	local delim_from, delim_to = string.find(s, delimiter, from)
+	while delim_from do
+		table.insert(result, string.sub(s, from, delim_from - 1))
+		from = delim_to + 1
+		delim_from, delim_to = string.find(s, delimiter, from)
+	end
+	table.insert(result, string.sub(s, from))
+	return result
+end
+
 local function escape_pattern(text)
 	local matches = {
 		["%"] = "%%",
@@ -37,15 +50,16 @@ local function is_added(current_text, header, license)
 
 	if license.check_exist == nil then
 		check_exist = function(license_header)
+			print(license.template)
 			local safe_template = escape_pattern(license.template)
 			local empty_vars = {}
 			for k, v in pairs(license.vars) do
 				empty_vars[k] = ".*"
 			end
 			local any_vars_template = template.replace_vars(safe_template, empty_vars)
-			any_vars_template = any_vars_template:gsub("\n", "")
-			local onelinetext = current_text:gsub("\n", "")
-			return trim(trim(onelinetext):match(trim(any_vars_template))) == trim(onelinetext)
+			local matched_text = current_text:match(any_vars_template)
+
+			return matched_text == current_text
 		end
 	elseif type(license.check_exist) == "string" then
 		check_exist = function(license_header)
@@ -80,17 +94,18 @@ function M.add(buf, config)
 	end
 
 	local text = template.replace_vars(license.template, license.vars)
-	local count = 0
+	local count = 1
 
 	for _ in string.gmatch(text, "\n") do
 		count = count + 1
 	end
 
-	local comment = vim.bo.commentstring
-	local lines = vim.api.nvim_buf_get_lines(buf, 0, count + 1, false)
+	local trimmed_comment = vim.bo.cms:gsub("%s", "")
+	print(trimmed_comment)
+	local lines = vim.api.nvim_buf_get_lines(buf, 0, count, false)
 	local trimmed_lines = {}
 	for _, line in ipairs(lines) do
-		local trimmed = line:gsub("^" .. comment .. "*(.*)$", "%1")
+		local trimmed = trim(line:gsub("^" .. trimmed_comment .. "*(.*)$", "%1"))
 		table.insert(trimmed_lines, trimmed)
 	end
 	local current_header = table.concat(trimmed_lines, "\n")
@@ -99,9 +114,9 @@ function M.add(buf, config)
 		return
 	end
 	local copyright_lines = {}
-
-	for line in string.gmatch(text, "([^\n]+)") do
-		local commented_line = comment:gsub("%%s", line)
+	local uncommented_lines = split(text, "\n")
+	for k, line in ipairs(uncommented_lines) do
+		local commented_line = vim.bo.cms:gsub("%%s", line)
 		table.insert(copyright_lines, commented_line)
 	end
 	table.insert(copyright_lines, "")
