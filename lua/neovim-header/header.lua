@@ -50,7 +50,6 @@ local function is_added(current_text, header, license)
 
 	if license.check_exist == nil then
 		check_exist = function(license_header)
-			print(license.template)
 			local safe_template = escape_pattern(license.template)
 			local empty_vars = {}
 			for k, v in pairs(license.vars) do
@@ -101,7 +100,6 @@ function M.add(buf, config)
 	end
 
 	local trimmed_comment = vim.bo.cms:gsub("%s", "")
-	print(trimmed_comment)
 	local lines = vim.api.nvim_buf_get_lines(buf, 0, count, false)
 	local trimmed_lines = {}
 	for _, line in ipairs(lines) do
