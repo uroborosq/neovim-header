@@ -48,7 +48,7 @@ end
 local function is_added(current_text, header, license)
 	local check_exist = license.check_exist
 
-	if license.check_exist == nil then
+	if check_exist == nil then
 		check_exist = function(license_header)
 			local safe_template = escape_pattern(license.template)
 			local empty_vars = {}
