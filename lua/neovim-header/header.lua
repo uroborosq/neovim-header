@@ -104,7 +104,8 @@ function M.add(buf, config)
 		count = count + 1
 	end
 
-	local trimmed_comment = vim.bo.cms:gsub("%s", "")
+	local comment = require("Comment.ft").get(vim.bo.filetype, require("Comment.utils").ctype.linewise)
+	local trimmed_comment = comment:gsub("%s", "")
 	local lines = vim.api.nvim_buf_get_lines(buf, 0, count, false)
 	local trimmed_lines = {}
 	for _, line in ipairs(lines) do
