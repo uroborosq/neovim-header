@@ -41,6 +41,11 @@ local function escape_pattern(text)
 	return (text:gsub(".", matches))
 end
 
+local function get_comment_pattern()
+	local comment = require("Comment.ft").get(vim.bo.filetype, require("Comment.utils").ctype.linewise)
+	return comment
+end
+
 ---@param current_text string
 ---@param header string
 ---@param license neovim-header.License
@@ -49,10 +54,10 @@ local function is_added(current_text, header, license)
 	local check_exist = license.check_exist
 
 	if check_exist == nil then
-		check_exist = function(license_header)
+		check_exist = function(_)
 			local safe_template = escape_pattern(license.template)
 			local empty_vars = {}
-			for k, v in pairs(license.vars) do
+			for k, _ in pairs(license.vars) do
 				empty_vars[k] = ".*"
 			end
 			local any_vars_template = template.replace_vars(safe_template, empty_vars)
@@ -61,7 +66,7 @@ local function is_added(current_text, header, license)
 			return matched_text == current_text
 		end
 	elseif type(license.check_exist) == "string" then
-		check_exist = function(license_header)
+		check_exist = function(_)
 			return #{ current_text:gmatch(tostring(license.check_exist)) } > 0
 		end
 	end
@@ -123,6 +128,40 @@ function M.add(buf, config)
 	vim.lsp.codelens.refresh()
 end
 
-function M.update(buf, config) end
+---@param buf integer
+local function get_current_license_text(buf)
+	local comment_pattern = vim.bo.cms:gsub("%s", "")
+
+	local commented_lines = {}
+	local line_counter = 0
+	local max = vim.api.nvim_buf_line_count(buf)
+	while line_counter < max do
+		local new_line = vim.api.nvim_buf_get_lines(buf, line_counter, line_counter + 1, true)[0]
+		if new_line:gmatch(comment_pattern) then
+			local trimmed = trim(new_line:gsub("^" .. comment_pattern .. "*(.*)$", "%1"))
+			table.insert(commented_lines, trimmed)
+		end
+	end
+
+	return commented_lines
+end
+
+---@param buf integer
+---@param config neovim-header.Config
+function M.update(buf, config)
+	local selected_license_name = config.select_license
+	if type(config.select_license) == "function" then
+		selected_license_name = config.select_license()
+	end
+
+	local license = config.licenses[selected_license_name]
+	if not contains(license.filetypes, vim.bo.filetype) then
+		return
+	end
+
+	local current_header = get_current_license_text(buf)
+
+	local text = template.replace_vars(license.template, license.vars)
+end
 
 return M
