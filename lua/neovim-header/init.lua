@@ -16,7 +16,7 @@ function M.setup(opts)
 	end, {})
 	vim.api.nvim_create_user_command("UQUpdateHeader", function()
 		local buf = vim.api.nvim_get_current_buf()
-		M.add(buf, config.get())
+		M.update(buf, config.get())
 	end, {})
 
 	if config.get().auto_insert then
@@ -24,6 +24,14 @@ function M.setup(opts)
 			callback = function()
 				local buf = vim.api.nvim_get_current_buf()
 				M.add(buf, config.get())
+			end,
+		})
+	end
+	if config.get().auto_update then
+		vim.api.nvim_create_autocmd("BufEnter", {
+			callback = function()
+				local buf = vim.api.nvim_get_current_buf()
+				M.update(buf, config.get())
 			end,
 		})
 	end
