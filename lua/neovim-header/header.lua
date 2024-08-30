@@ -131,7 +131,6 @@ function M.add(buf, config)
 	local any_vars_template = template.replace_vars(safe_template, empty_vars)
 	local previous_vars = { current_header:find(any_vars_template) }
 	local header_found = not (previous_vars[1] == nil)
-
 	if
 		(header_found and license.check_exist == nil)
 		or (not license.check_exist == nil and is_added(current_header, license))
@@ -151,7 +150,6 @@ function M.add(buf, config)
 	table.insert(copyright_lines, "")
 
 	vim.api.nvim_buf_set_text(buf, 0, 0, 0, 0, copyright_lines)
-	vim.cmd(":w")
 	vim.lsp.codelens.refresh()
 end
 
@@ -197,7 +195,6 @@ function M.update(buf, config)
 	table.insert(copyright_lines, "")
 
 	vim.api.nvim_buf_set_text(buf, 0, 0, #trimmed_lines, 0, copyright_lines)
-	vim.cmd(":w")
 	vim.lsp.codelens.refresh()
 end
 
