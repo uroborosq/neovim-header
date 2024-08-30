@@ -183,6 +183,11 @@ function M.update(buf, config)
 	local previous_vars = { current_header:find(any_vars_template) }
 
 	local text = template.replace_vars(license.template, license.vars, slice(previous_vars, 2))
+
+	if text == current_header then
+		return
+	end
+
 	local license_lines = split(text, "\n")
 
 	local lcs, rcs = cmt_utils.unwrap_cstr(get_comment_pattern())
