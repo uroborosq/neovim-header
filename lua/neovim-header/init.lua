@@ -20,7 +20,7 @@ function M.setup(opts)
 	end, {})
 
 	if config.get().auto_insert then
-		vim.api.nvim_create_autocmd("BufEnter", {
+		vim.api.nvim_create_autocmd("InsertEnter", {
 			callback = function()
 				local buf = vim.api.nvim_get_current_buf()
 				M.add(buf, config.get())
@@ -28,7 +28,7 @@ function M.setup(opts)
 		})
 	end
 	if config.get().auto_update then
-		vim.api.nvim_create_autocmd("BufEnter", {
+		vim.api.nvim_create_autocmd("InsertEnter", {
 			callback = function()
 				local buf = vim.api.nvim_get_current_buf()
 				M.update(buf, config.get())
