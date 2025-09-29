@@ -146,6 +146,8 @@ function M.add(buf, config)
 		local commented_line = cmt_utils.commenter(lcs, rcs, true, 0)(line)
 		table.insert(copyright_lines, commented_line)
 	end
+
+	table.insert(copyright_lines, "")
 	table.insert(copyright_lines, "")
 	table.insert(copyright_lines, "")
 
@@ -197,6 +199,7 @@ function M.update(buf, config)
 		table.insert(copyright_lines, commented_line)
 	end
 
+	table.insert(copyright_lines, "")
 	table.insert(copyright_lines, "")
 
 	vim.api.nvim_buf_set_text(buf, 0, 0, #trimmed_lines, 0, copyright_lines)
