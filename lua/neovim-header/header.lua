@@ -148,8 +148,6 @@ function M.add(buf, config)
 	end
 
 	table.insert(copyright_lines, "")
-	table.insert(copyright_lines, "")
-	table.insert(copyright_lines, "")
 
 	vim.api.nvim_buf_set_text(buf, 0, 0, 0, 0, copyright_lines)
 	vim.lsp.codelens.refresh()
@@ -199,7 +197,6 @@ function M.update(buf, config)
 		table.insert(copyright_lines, commented_line)
 	end
 
-	table.insert(copyright_lines, "")
 	table.insert(copyright_lines, "")
 
 	vim.api.nvim_buf_set_text(buf, 0, 0, #trimmed_lines, 0, copyright_lines)
