@@ -218,7 +218,7 @@ local function apply_header(buf, start_row, end_row, lines)
 		local row, col = cursor[1], cursor[2]
 		vim.notify(tostring(row) .. " " .. tostring(col))
 		local id = vim.api.nvim_buf_set_extmark(buf, cursor_namespace, row - 1, col, {
-			right_gravity = false,
+			right_gravity = true,
 		})
 		marks_by_window[win] = id
 	end
@@ -231,9 +231,12 @@ local function apply_header(buf, start_row, end_row, lines)
 			if #mark > 0 then
 				local row = mark[1] + 1
 				local col = mark[2]
+
 				local line = vim.api.nvim_buf_get_lines(buf, row - 1, row, true)[1] or ""
 				local clamped_col = math.max(0, math.min(#line, col))
-				vim.api.nvim_win_set_cursor(win, { row, clamped_col })
+				vim.schedule(function()
+					vim.api.nvim_win_set_cursor(win, { row, clamped_col })
+				end)
 			end
 		end
 		pcall(vim.api.nvim_buf_del_extmark, buf, cursor_namespace, mark_id)
