@@ -216,7 +216,6 @@ local function apply_header(buf, start_row, end_row, lines)
 	for _, win in ipairs(windows) do
 		local cursor = vim.api.nvim_win_get_cursor(win)
 		local row, col = cursor[1], cursor[2]
-		vim.notify(tostring(row) .. " " .. tostring(col))
 		local id = vim.api.nvim_buf_set_extmark(buf, cursor_namespace, row - 1, col, {
 			right_gravity = true,
 		})
