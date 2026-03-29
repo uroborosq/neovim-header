@@ -209,7 +209,32 @@ end
 ---@param end_row integer
 ---@param lines string[]
 local function apply_header(buf, start_row, end_row, lines)
+	local old_line_count = end_row - start_row
+	local new_line_count = #lines
+	local delta = new_line_count - old_line_count
+	local windows = vim.fn.win_findbuf(buf)
+	local cursor_by_window = {}
+
+	for _, win in ipairs(windows) do
+		cursor_by_window[win] = vim.api.nvim_win_get_cursor(win)
+	end
+
 	vim.api.nvim_buf_set_text(buf, start_row, 0, end_row, 0, lines)
+
+	if delta ~= 0 then
+		for win, cursor in pairs(cursor_by_window) do
+			if vim.api.nvim_win_is_valid(win) then
+				local row, col = cursor[1], cursor[2]
+				local row0 = row - 1
+				if row0 >= end_row then
+					local max_row = vim.api.nvim_buf_line_count(buf)
+					local next_row = math.max(1, math.min(max_row, row + delta))
+					vim.api.nvim_win_set_cursor(win, { next_row, col })
+				end
+			end
+		end
+	end
+
 	vim.lsp.codelens.refresh()
 end
 
