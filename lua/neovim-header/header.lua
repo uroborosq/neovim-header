@@ -135,10 +135,27 @@ local function should_skip_buffer(buf, config)
 end
 
 ---@param buf integer
----@return string[]
+---@return integer
+local function find_first_non_blank_row(buf)
+	local row = 0
+	local max = vim.api.nvim_buf_line_count(buf)
+
+	while row < max do
+		local line = vim.api.nvim_buf_get_lines(buf, row, row + 1, true)[1]
+		if line:match("^%s*$") == nil then
+			return row
+		end
+		row = row + 1
+	end
+
+	return max
+end
+
+---@param buf integer
+---@return string[], integer
 local function get_commented_header(buf)
 	local commented_lines = {}
-	local line_counter = 0
+	local line_counter = find_first_non_blank_row(buf)
 	local max = vim.api.nvim_buf_line_count(buf)
 
 	while line_counter < max do
@@ -154,19 +171,20 @@ local function get_commented_header(buf)
 		line_counter = line_counter + 1
 	end
 
-	return commented_lines
+	return commented_lines, line_counter - #commented_lines
 end
 
 ---@param buf integer
 ---@param license neovim-header.License
 ---@return table
 local function build_header_context(buf, license)
-	local trimmed_lines = get_commented_header(buf)
+	local trimmed_lines, header_start_row = get_commented_header(buf)
 	local current_header = table.concat(trimmed_lines, "\n")
 	local previous_vars = extract_previous_vars(license, current_header)
 
 	return {
 		trimmed_lines = trimmed_lines,
+		header_start_row = header_start_row,
 		current_header = current_header,
 		previous_vars = previous_vars,
 	}
@@ -221,7 +239,7 @@ function M.add(buf, config)
 	local text = render_header_text(license, previous_vars, 3)
 	local copyright_lines = build_buffer_lines(text)
 
-	apply_header(buf, 0, 0, copyright_lines)
+	apply_header(buf, context.header_start_row, context.header_start_row, copyright_lines)
 end
 
 ---@param buf integer
@@ -248,7 +266,12 @@ function M.update(buf, config)
 
 	local copyright_lines = build_buffer_lines(text)
 
-	apply_header(buf, 0, #context.trimmed_lines, copyright_lines)
+	apply_header(
+		buf,
+		context.header_start_row,
+		context.header_start_row + #context.trimmed_lines,
+		copyright_lines
+	)
 end
 
 return M
