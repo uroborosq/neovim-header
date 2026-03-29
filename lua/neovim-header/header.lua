@@ -141,6 +141,10 @@ local function find_first_non_blank_row(buf)
 	local row = 0
 	local max = vim.api.nvim_buf_line_count(buf)
 
+	if max == 1 then
+		return 0
+	end
+
 	while row < max do
 		local line = vim.api.nvim_buf_get_lines(buf, row, row + 1, true)[1]
 		if line:match("^%s*$") == nil then
