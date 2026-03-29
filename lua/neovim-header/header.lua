@@ -220,6 +220,7 @@ local function apply_header(buf, start_row, end_row, lines)
 			right_gravity = false,
 		})
 		marks_by_window[win] = id
+		vim.notify(vim.inspect(id))
 	end
 
 	vim.api.nvim_buf_set_text(buf, start_row, 0, end_row, 0, lines)
@@ -294,12 +295,7 @@ function M.update(buf, config)
 
 	local copyright_lines = build_buffer_lines(text)
 
-	apply_header(
-		buf,
-		context.header_start_row,
-		context.header_start_row + #context.trimmed_lines,
-		copyright_lines
-	)
+	apply_header(buf, context.header_start_row, context.header_start_row + #context.trimmed_lines, copyright_lines)
 end
 
 return M
