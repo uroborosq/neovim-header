@@ -229,7 +229,9 @@ local function apply_header(buf, start_row, end_row, lines)
 				if row0 >= end_row then
 					local max_row = vim.api.nvim_buf_line_count(buf)
 					local next_row = math.max(1, math.min(max_row, row + delta))
-					vim.api.nvim_win_set_cursor(win, { next_row, col })
+					local next_line = vim.api.nvim_buf_get_lines(buf, next_row - 1, next_row, true)[1] or ""
+					local next_col = math.max(0, math.min(#next_line, col))
+					vim.api.nvim_win_set_cursor(win, { next_row, next_col })
 				end
 			end
 		end
